@@ -1,0 +1,346 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 
+  Journal-Ready SVG 
+  Target Width: 150mm (Double Column)
+  Font Size Target: 8-12pt at print size
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="40 90 720 950" width="110mm" height="165mm">
+  <defs>
+    <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#000000ff"/>
+    </marker>
+    <filter id="soft-shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="2"/>
+      <feOffset dx="1" dy="2" result="offsetblur"/>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.15"/>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <style>
+    text { font-family: 'Times New Roman', 'Helvetica', sans-serif; }
+    
+    .stage-bg { fill-opacity: 0.12; stroke-width: 2.5; rx: 12; ry: 12; }
+    .header-bar { height: 36px; rx: 12; ry: 12; } 
+    .header-accent { height: 6px; rx: 0; ry: 0; }
+
+    .s1-head       { fill: #1067a5ff; }
+    .s1-bg         { fill: #1067a5ff; stroke: #154967ff; }
+    .s1-box        { stroke: #1067a5ff; }
+    .s1-accent-bar { fill: #154967ff; }
+
+    .s2-head       { fill: #009E73; }
+    .s2-bg         { fill: #009E73; stroke: #006B4F; }
+    .s2-box        { stroke: #009E73; }
+    .s2-accent-bar { fill: #006B4F; }
+
+    .s3-head       { fill: #d53c00ff; }
+    .s3-bg         { fill: #d53c00ff; stroke: #9A4400; }
+    .s3-box        { stroke: #d53c00ff; }
+    .s3-accent-bar { fill: #9A4400; }
+
+    .s4-head       { fill: #4223dcff; }
+    .s4-bg         { fill: #4223dcff; stroke: #291780ff; }
+    .s4-box        { stroke: #4223dcff; }
+    .s4-accent-bar { fill: #291780ff; }
+
+    .module { fill: #ffffff; rx: 6; ry: 6; stroke-width: 1.5; }
+    .frozen { fill: #f5f5f5; stroke: #011a13ff; stroke-dasharray: 4,3; }
+    .final-output { fill: #4caf50; stroke: #2e7d32; }
+    
+    .main-title { font-size: 20px; font-weight: bold; fill: #263238; text-anchor: middle; }
+    .main-sub { font-size: 13px; fill: #000000; text-anchor: middle; }
+    .stage-title { font-size: 15px; font-weight: bold; fill: #ffffff; text-anchor: middle; letter-spacing: 1px; }
+    
+    .mod-title { font-size: 12px; font-weight: bold; fill: #37474f; text-anchor: middle; }
+    .mod-desc { font-size: 10px; fill: #000000; text-anchor: middle; }
+    .mod-detail { font-size: 9px; fill: #272a2c; text-anchor: middle; font-style: italic; }
+    
+    .arrow-text { font-size: 9px; fill: #000000; text-anchor: middle; font-weight: bold; }
+    .arrow { stroke: #455a64; stroke-width: 1.5; fill: none; marker-end: url(#arrowhead); }
+    .divider { stroke: #656b6e; stroke-width: 1; }
+    
+    .legend-text { font-size: 11px; fill: #000000; }
+  </style>
+
+  <!-- Canvas Background -->
+  <rect width="800" height="1200" fill="#ffffff"/>
+
+  <!-- Title Block -->
+  <g transform="translate(400, 45)">
+    <text y="0" class="main-title">Synthetic Sensor Data Generation Pipeline</text>
+  </g>
+
+  <!-- ==================== STAGE 1: DATA PREPARATION ==================== -->
+  <g transform="translate(50, 65)">
+    <rect width="700" height="180" class="stage-bg s1-bg"/>
+    <rect width="700" class="header-bar s1-head"/>
+    <rect y="30" width="700" height="6" class="header-accent s1-accent-bar"/>
+    <text x="350" y="22" class="stage-title">STAGE 1: DATA PREPARATION &amp; PREPROCESSING</text>
+
+    <!-- Box 1: Raw Input -->
+    <g transform="translate(20, 60)">
+      <rect width="100" height="90" class="module s1-box"/>
+      <text x="50" y="25" class="mod-title">Raw Recordings</text>
+      <line x1="10" y1="35" x2="90" y2="35" class="divider"/>
+      <text x="50" y="52" class="mod-desc">REALDISP Dataset</text>
+      <text x="50" y="65" class="mod-detail">12 Participants</text>
+      <text x="50" y="78" class="mod-detail">50 Hz Sampling</text>
+    </g>
+
+    <!-- Arrow 1 -->
+    <path d="M120 105 L180 105" class="arrow"/>
+    <text x="150" y="95" class="arrow-text">Filter</text>
+
+    <!-- Box 2: Segmentation -->
+    <g transform="translate(182, 60)">
+      <rect width="120" height="90" class="module s1-box"/>
+      <text x="60" y="25" class="mod-title">Extract &amp; Segment</text>
+      <line x1="10" y1="35" x2="110" y2="35" class="divider"/>
+      <text x="60" y="52" class="mod-desc">Right Thigh Sensor</text>
+      <text x="60" y="65" class="mod-detail">6 Channels (Acc+Gyr)</text>
+      <text x="60" y="78" class="mod-detail">Window: 160 (3.2s)</text>
+    </g>
+
+    <!-- Arrow 2 -->
+    <path d="M302 105 L362 105" class="arrow"/>
+    <text x="332" y="95" class="arrow-text">Window</text>
+
+    <!-- Box 3: Splitting -->
+    <g transform="translate(364, 60)">
+      <rect width="120" height="90" class="module s1-box"/>
+      <text x="60" y="25" class="mod-title">LOSO Split</text>
+      <line x1="10" y1="35" x2="110" y2="35" class="divider"/>
+      <text x="60" y="52" class="mod-desc">Leave-One-Subject-Out</text>
+      <text x="60" y="65" class="mod-detail">Train: 11 / Test: 1</text>
+      <text x="60" y="78" class="mod-detail">Z-Score Norm</text>
+    </g>
+
+    <!-- Arrow 3 -->
+    <path d="M485 105 L545 105" class="arrow"/>
+    <text x="515" y="95" class="arrow-text">Norm</text>
+
+    <!-- Box 4: Output -->
+    <g transform="translate(547, 60)">
+      <rect width="130" height="90" class="module s1-box" style="fill: #e1f5fe;"/>
+      <text x="65" y="35" class="mod-title">Training Tensor</text>
+      <text x="65" y="60" class="mod-desc" style="font-family: monospace; font-size: 11px;">(N, 6, 160)</text>
+    </g>
+  </g>
+
+  <!-- Connector Stage 1 -> 2 -->
+  <path d="M400 245 L400 275" class="arrow"/>
+
+  <!-- ==================== STAGE 2: COMPRESSION ==================== -->
+  <g transform="translate(50, 277)">
+    <rect width="700" height="175" class="stage-bg s2-bg"/>
+    <rect width="700" class="header-bar s2-head"/>
+    <rect y="30" width="700" height="6" class="header-accent s2-accent-bar"/>
+    <text x="350" y="22" class="stage-title">STAGE 2: COMPRESSION (VAE)</text>
+
+    <!-- Input -->
+    <g transform="translate(20, 60)">
+      <rect width="100" height="80" class="module s2-box"/>
+      <text x="50" y="25" class="mod-title">Input Signal</text>
+      <line x1="10" y1="35" x2="90" y2="35" class="divider"/>
+      <text x="50" y="52" class="mod-desc">6 Channels</text>
+      <text x="50" y="65" class="mod-detail">160 Time Steps</text>
+    </g>
+
+    <!-- Arrow -->
+    <path d="M120 100 L165 100" class="arrow"/>
+    <text x="142" y="90" class="arrow-text">Encode</text>
+
+    <!-- Latent Space -->
+    <g transform="translate(167, 50)">
+      <rect width="180" height="100" class="module s2-box" style="fill: #e0f2f1;"/>
+      <text x="90" y="25" class="mod-title">Latent Representation</text>
+      <line x1="15" y1="35" x2="165" y2="35" class="divider"/>
+      <text x="90" y="55" class="mod-desc">48 Channels × 40 Steps</text>
+      <text x="90" y="68" class="mod-detail">4× Temporal Compression</text>
+      <text x="90" y="82" class="mod-detail" style="fill: #00695c; font-weight: bold;">Preserves Temporal Phase</text>
+    </g>
+
+    <!-- Arrow -->
+    <path d="M347 100 L392 100" class="arrow"/>
+    <text x="369" y="90" class="arrow-text">Decode</text>
+
+    <!-- Output -->
+    <g transform="translate(394, 60)">
+      <rect width="100" height="80" class="module s2-box"/>
+      <text x="50" y="25" class="mod-title">Reconstruction</text>
+      <line x1="10" y1="35" x2="90" y2="35" class="divider"/>
+      <text x="50" y="52" class="mod-desc">6 Channels</text>
+      <text x="50" y="65" class="mod-detail">Matches Input</text>
+    </g>
+
+    <!-- Loss Box -->
+    <g transform="translate(530, 60)">
+      <rect width="150" height="80" class="module s2-box" style="stroke-dasharray: 4,2; fill: #fff;"/>
+      <text x="75" y="25" class="mod-title">Loss Function</text>
+      <line x1="15" y1="35" x2="135" y2="35" class="divider"/>
+      <text x="75" y="52" class="mod-desc">L2 + L1 (Time)</text>
+      <text x="75" y="68" class="mod-detail">Reconstruction objective</text>
+    </g>
+
+    <!-- Loss Arrow -->
+    <path d="M494 100 L530 100" class="arrow" style="stroke-dasharray: 4,2;"/>
+  </g>
+
+    <!-- TRANSITION: FREEZE WEIGHTS - with arrow from Stage 2 -->
+    <g transform="translate(320, 468)">
+    <path d="M80 -15 L80 10" class="arrow"/>
+    <rect x="0" y="10" width="160" height="28" rx="4" fill="#009E73" stroke="#006B4F" stroke-width="2" stroke-dasharray="5,3"/>
+    <text x="80" y="29" class="mod-title" style="font-size: 11px; fill: #ffffff;">FREEZE VAE WEIGHTS</text>
+    <path d="M80 38 L80 60" class="arrow"/>
+    </g>
+
+  <!-- ==================== STAGE 3: GENERATION LEARNING ==================== -->
+  <g transform="translate(50, 530)">
+    <rect width="700" height="220" class="stage-bg s3-bg"/>
+    <rect width="700" class="header-bar s3-head"/>
+    <rect y="30" width="700" height="6" class="header-accent s3-accent-bar"/>
+    <text x="350" y="22" class="stage-title">STAGE 3: RECTIFIED FLOW LEARNING</text>
+
+    <!-- Noise -->
+    <g transform="translate(20, 50)">
+      <rect width="120" height="65" class="module s3-box"/>
+      <text x="60" y="25" class="mod-title">Random Noise</text>
+      <line x1="15" y1="35" x2="105" y2="35" class="divider"/>
+      <text x="60" y="52" class="mod-desc">Gaussian (48×40)</text>
+    </g>
+
+    <!-- Real Latent -->
+    <g transform="translate(20, 130)">
+      <rect width="120" height="65" class="module frozen"/>
+      <text x="60" y="25" class="mod-title">Real Latent</text>
+      <line x1="15" y1="35" x2="105" y2="35" class="divider"/>
+      <text x="60" y="52" class="mod-desc">From Frozen VAE</text>
+    </g>
+
+    <!-- Arrows to Flow -->
+    <path d="M140 82 L190 110" class="arrow"/>
+    <path d="M140 162 L190 130" class="arrow"/>
+    
+    <!-- Model Core -->
+    <g transform="translate(192, 55)">
+      <rect width="340" height="125" class="module s3-box" style="stroke-width: 2.5;"/>
+      <text x="170" y="25" class="mod-title" style="font-size: 14px;">Rectified Flow Model (1D U-Net)</text>
+      <line x1="20" y1="35" x2="320" y2="35" class="divider"/>
+      
+      <text x="170" y="55" class="mod-desc">Learns Velocity Field: Noise → Data</text>
+      <text x="170" y="70" class="mod-desc">Straight-Line Trajectory (ODE)</text>
+      
+      <rect x="70" y="85" width="200" height="25" rx="4" fill="#f3e5f5" stroke="#ce93d8"/>
+      <text x="170" y="102" class="mod-detail" style="font-weight: bold; fill: #7b1fa2;">Conditioned on Activity Label</text>
+    </g>
+
+    <!-- Output Model -->
+    <g transform="translate(555, 70)">
+      <rect width="125" height="95" class="module s3-box" style="fill: #f3e5f5;"/>
+      <text x="62" y="28" class="mod-title">Trained Model</text>
+      <line x1="15" y1="38" x2="110" y2="38" class="divider"/>
+      <text x="62" y="55" class="mod-desc">Predicts Velocity</text>
+      <text x="62" y="75" class="mod-detail">v(z, t, label)</text>
+    </g>
+
+    <path d="M532 120 L553 120" class="arrow"/>
+  </g>
+
+  <!-- Connector Stage 3 -> 4 -->
+  <path d="M400 750 L400 778" class="arrow"/>
+
+  <!-- ==================== STAGE 4: INFERENCE ==================== -->
+  <g transform="translate(50, 780)">
+    <rect width="700" height="160" class="stage-bg s4-bg"/>
+    <rect width="700" class="header-bar s4-head"/>
+    <rect y="30" width="700" height="6" class="header-accent s4-accent-bar"/>
+    <text x="350" y="22" class="stage-title">STAGE 4: SYNTHETIC DATA GENERATION</text>
+
+    <!-- Input Label -->
+    <g transform="translate(28, 65)">
+      <rect width="100" height="60" class="module s4-box"/>
+      <text x="50" y="25" class="mod-title">Input Label</text>
+      <text x="50" y="45" class="mod-desc">"Running"</text>
+    </g>
+
+    <path d="M128 95 L183 95" class="arrow"/>
+
+    <!-- Noise -->
+    <g transform="translate(185, 65)">
+      <rect width="100" height="60" class="module s4-box"/>
+      <text x="50" y="25" class="mod-title">New Noise</text>
+      <text x="50" y="45" class="mod-desc">z ~ N(0,I)</text>
+    </g>
+
+    <path d="M285 95 L340 95" class="arrow"/>
+
+    <!-- Iterative Denoising -->
+    <g transform="translate(342, 55)">
+      <rect width="160" height="80" class="module s4-box"/>
+      <text x="80" y="20" class="mod-title">Iterative Denoising</text>
+      <text x="80" y="32" class="mod-desc" style="font-size: 9px;">(Flow Integration)</text>
+      <line x1="15" y1="40" x2="145" y2="40" class="divider"/>
+      <text x="80" y="55" class="mod-desc">Euler Steps</text>
+      <text x="80" y="68" class="mod-detail">10 Steps (t=1 → 0)</text>
+    </g>
+
+    <path d="M502 95 L548 95" class="arrow"/>
+
+    <!-- Decoder -->
+    <g transform="translate(550, 55)">
+      <rect width="120" height="80" class="module frozen"/>
+      <text x="60" y="25" class="mod-title">Decode</text>
+      <line x1="15" y1="35" x2="105" y2="35" class="divider"/>
+      <text x="60" y="52" class="mod-desc">Using Stage 2</text>
+      <text x="60" y="65" class="mod-desc">Frozen Decoder</text>
+    </g>
+  </g>
+
+  <!-- Connector Stage 4 -> Final Output -->
+  <path d="M400 940 L400 970" class="arrow"/>
+
+  <!-- ==================== FINAL OUTPUT (Outside all stages) ==================== -->
+  <g transform="translate(250, 972)">
+    <rect width="300" height="45" rx="8" class="module final-output" style="stroke-width: 2.5;"/>
+    <text x="150" y="28" class="mod-title" style="fill: white; font-size: 14px;">SYNTHETIC SENSOR DATA</text>
+  </g>
+
+  <!-- Footer & Legend -->
+  <g transform="translate(400, 1035)">
+    <!-- Divider line -->
+    <line x1="-300" y1="0" x2="300" y2="0" stroke="#B0BEC5" stroke-width="2"/>
+    
+    <!-- Legend row - centered -->
+    <g transform="translate(-260, 20)">
+      <text x="0" y="10" class="legend-text" style="font-weight: bold;">Legend:</text>
+      
+      <line x1="55" y1="6" x2="85" y2="6" class="arrow"/>
+      <text x="95" y="10" class="legend-text">Data flow</text>
+      
+      <rect x="165" y="0" width="20" height="12" class="frozen" style="filter: none;"/>
+      <text x="195" y="10" class="legend-text">Frozen weights</text>
+      
+      <rect x="295" y="0" width="15" height="12" class="stage-bg s1-bg"/>
+      <text x="320" y="10" class="legend-text">Prep</text>
+      
+      <rect x="360" y="0" width="15" height="12" class="stage-bg s2-bg"/>
+      <text x="385" y="10" class="legend-text">VAE</text>
+      
+      <rect x="425" y="0" width="15" height="12" class="stage-bg s3-bg"/>
+      <text x="450" y="10" class="legend-text">Flow</text>
+      
+      <rect x="490" y="0" width="15" height="12" class="stage-bg s4-bg"/>
+      <text x="515" y="10" class="legend-text">Gen</text>
+    </g>
+    
+    <!-- Footer text -->
+    <text x="0" y="55" class="mod-detail" style="text-anchor: middle; font-size: 11px;">Pipeline: REALDISP (6ch) → Windowing → VAE Compression → Flow Matching → Synthetic Generation</text>
+  </g>
+
+</svg>

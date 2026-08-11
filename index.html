@@ -1,0 +1,615 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LRF-IMU — Latent Rectified Flow for Synthetic Wearable IMU Data</title>
+  <meta name="description" content="LRF-IMU is a class-conditioned latent rectified flow framework for generating physically plausible six-channel wearable IMU windows with downstream human activity recognition utility under leave-one-subject-out evaluation.">
+  <meta name="theme-color" content="#1a1a2e">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2224%22 fill=%22%231a1a2e%22/><path d=%22M12 55 C22 18 34 86 44 50 S66 15 76 50 S88 80 94 42%22 fill=%22none%22 stroke=%22%234a90d9%22 stroke-width=%228%22 stroke-linecap=%22round%22/></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="index.css">
+  <link rel="alternate" type="text/markdown" href="./llms.txt" title="LLM-readable LRF-IMU project summary">
+</head>
+<body>
+
+<!-- ═══════════════ SITE NAV ═══════════════ -->
+<nav class="site-nav" id="site-nav">
+  <div class="site-nav-inner">
+    <a class="site-brand" href="#" data-nav="home">LRF-IMU</a>
+    <button class="nav-toggle" id="nav-toggle" type="button" aria-expanded="false" aria-label="Toggle navigation">Menu</button>
+    <div class="site-nav-links" id="site-nav-links">
+      <a href="#" data-nav="home" class="active">Home</a>
+      <a href="#" data-nav="design">Study Design</a>
+      <a href="#" data-nav="method">Method</a>
+      <a href="#" data-nav="generation">Generation</a>
+      <a href="#" data-nav="results">Results</a>
+      <a href="#" data-nav="implications">Implications</a>
+      <a href="#" data-nav="resources">Resources</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ═══════════════ MAIN CONTENT ═══════════════ -->
+<main class="tab-content" id="tab-content">
+
+<!-- ═══ HOME (landing) ═══ -->
+<section class="tab-panel active" id="panel-home">
+  <div class="home-hero">
+    <div class="header-inner">
+      <h1 class="paper-title">A latent rectified flow approach to generate synthetic wearable data</h1>
+      <p class="paper-subtitle">a LABDA solution</p>
+      <div class="authors-row">
+        <a href="https://orcid.org/0009-0001-5258-9174" target="_blank" rel="noopener">Amin Rezaei<sup>1,2,*</sup></a>
+        <a href="https://orcid.org/0009-0003-3081-7054" target="_blank" rel="noopener">Morten Kjærgaard<sup>1</sup></a>
+        <a href="https://orcid.org/0000-0002-6558-7610" target="_blank" rel="noopener">Jasper Schipperijn<sup>2</sup></a>
+      </div>
+      <div class="affiliations-row">
+        <span><sup>1</sup> SENS Innovation ApS, Copenhagen, Denmark</span>
+        <span><sup>2</sup> Department of Sports Science and Clinical Biomechanics, University of Southern Denmark, Odense, Denmark</span>
+        <span><sup>*</sup> Corresponding author</span>
+      </div>
+      <div class="header-actions">
+        <a class="pub-btn" href="https://doi.org/10.1088/3049-477X/ae91ef" target="_blank" rel="noopener">Paper</a>
+        <a class="pub-btn" href="https://doi.org/10.1088/3049-477X/ae91ef" target="_blank" rel="noopener">DOI</a>
+        <a class="pub-btn" href="https://github.com/aminsens/LRF-IMU" target="_blank" rel="noopener">Code</a>
+        <a class="pub-btn" href="#">Models · release in preparation</a>
+      </div>
+      <p class="paper-statement">The first latent Rectified Flow architecture for IMU signal generation: a class-conditioned framework for raw wearable accelerometer and gyroscope synthesis, evaluated across 12 participant-held-out folds, 2 sensor configurations, 4 activities, and 9 segmentation settings.</p>
+      <div class="stat-strip">
+        <div class="stat"><span class="stat-num">12</span><span class="stat-label">LOSO Folds</span></div>
+        <div class="stat"><span class="stat-num">6/3<sup class="stat-footnote">*</sup></span><span class="stat-label">Sensor Channels</span></div>
+        <div class="stat"><span class="stat-num">4</span><span class="stat-label">Activity Classes</span></div>
+        <div class="stat"><span class="stat-num">3.2s</span><span class="stat-label">Window Length</span></div>
+        <div class="stat"><span class="stat-num">10</span><span class="stat-label">Euler Steps</span></div>
+        <div class="stat accent"><span class="stat-num">97.1%</span><span class="stat-label">TSTR Retention</span></div>
+      </div>
+      <p class="stat-note">* 6 = Full IMU channels (accelerometer + gyroscope) &nbsp;·&nbsp; 3 = Accelerometer only</p>
+    </div>
+
+    <!-- Overview content merged into Home -->
+    <div class="home-content">
+      <div class="abstract-block">
+        <p class="eyebrow">Abstract</p>
+        <p>Class-conditioned generation of six-channel accelerometer and gyroscope windows, evaluated for physical plausibility, downstream HAR utility, and memorisation risk under strict participant-independent validation. LRF-IMU combines a convolutional variational autoencoder with class-conditioned Rectified Flow to generate new time-domain IMU windows and evaluate them where they matter: on real, unseen participants.</p>
+      </div>
+
+      <figure class="figure-block feature-figure">
+        <img src="uploads/pipeline-overview.svg" alt="Four-stage LRF-IMU pipeline" loading="lazy" data-lightbox>
+        <figcaption><strong>Figure 1.</strong> Four-stage LRF-IMU pipeline: data preparation from REALDISP, VAE latent compression (6×160 → 48×40), class-conditioned Rectified Flow training, and six-channel synthetic sensor generation via 10-step ODE integration.</figcaption>
+      </figure>
+
+      <div class="card-grid three">
+        <div class="card">
+          <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg></div>
+          <h4>The Challenge</h4>
+          <p>Labelled wearable datasets are expensive to collect and often too small to represent movement variability across people. Synthetic data are useful only when they preserve downstream information rather than merely looking plausible.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>
+          <h4>The Approach</h4>
+          <p>Six-channel right-thigh IMU windows are compressed to a structured latent sequence. A single conditional flow model learns to transport Gaussian noise toward activity-specific latent distributions.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></div>
+          <h4>The Test</h4>
+          <p>Every generative model and classifier is evaluated inside a 12-fold leave-one-subject-out protocol. Synthetic-only classifiers are tested on real windows from a participant never seen during training.</p>
+        </div>
+      </div>
+
+      <h3 class="grid-label"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg> Scope &amp; Limitations</h3>
+      <div class="card-grid two">
+        <div class="card scope-card positive">
+          <h4>What the paper establishes</h4>
+          <p>Stable class-conditioned latent generation; high synthetic-only HAR utility; strong low-data augmentation; robust results across nine segmentation settings; low memorisation indicators under the evaluated audits.</p>
+        </div>
+        <div class="card scope-card neutral">
+          <h4>What remains open</h4>
+          <p>Additional placements and cohorts, continuous sequence generation, matched external baselines, broader privacy threat models, and validation under larger activity taxonomies.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ STUDY DESIGN ═══ -->
+<section class="tab-panel" id="panel-design">
+  <div class="container">
+    <p class="eyebrow">Experimental Protocol</p>
+    <h2 class="section-title">A controlled REALDISP evaluation with strict participant separation</h2>
+    <p class="section-lead">The experimental protocol was designed around subject-independent evaluation, direct comparability with prior diffusion-based work on REALDISP, and strict separation between generative-model training and held-out-subject evaluation.</p>
+
+    <div class="design-blocks">
+      <div class="design-block" data-block="dataset">
+        <div class="design-head" role="button" tabindex="0" aria-expanded="false">
+          <span class="design-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg></span>
+          <div class="design-head-text"><h4>Dataset</h4><p>REALDISP benchmark — ideal-placement right-thigh IMU</p></div>
+          <svg class="design-chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="design-body">
+          <div class="design-grid two">
+            <div class="design-sub">
+              <h5>REALDISP Benchmark</h5>
+              <dl class="spec-list">
+                <dt>Participants</dt><dd>17</dd>
+                <dt>Activities</dt><dd>33</dd>
+                <dt>Sensors</dt><dd>Xsens MTw IMUs</dd>
+                <dt>Sampling rate</dt><dd>50 Hz</dd>
+                <dt>Placements</dt><dd>Ideal, self-placement, mutual displacement</dd>
+              </dl>
+            </div>
+            <div class="design-sub highlight">
+              <h5>Subset Evaluated in This Paper</h5>
+              <dl class="spec-list">
+                <dt>Participants</dt><dd>12 with complete recordings</dd>
+                <dt>Placement</dt><dd>Ideal placement only</dd>
+                <dt>Sensor</dt><dd>One right-thigh IMU</dd>
+                <dt>Channels</dt><dd>Triaxial accelerometer + triaxial gyroscope (6 channels)</dd>
+              </dl>
+            </div>
+          </div>
+          <h5 class="activity-label">Four Selected Activities</h5>
+          <div class="activity-grid">
+            <div class="activity-card">
+              <span class="activity-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="13" cy="4" r="1.8"/><path d="M11 22l2.4-6.2-3-2.8.9-4.6 3.4 3.2 3.3.6"/><path d="M11.3 8.4L7.6 10 6 13.6"/><path d="M10.4 15.8L7 18.2 5 22"/></svg></span>
+              <strong>Walking</strong><p>Periodic locomotion.</p>
+            </div>
+            <div class="activity-card">
+              <span class="activity-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="15.5" cy="4" r="1.8"/><path d="M9 22l3.4-5.6-3-3.2 1.4-4.8 3.6 3.4 3.4.8"/><path d="M10.8 8.4L6.6 10.6 4.8 14"/><path d="M4 12h3"/></svg></span>
+              <strong>Running</strong><p>Periodic locomotion with different cadence and impact magnitude.</p>
+            </div>
+            <div class="activity-card">
+              <span class="activity-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="4.2" r="1.8"/><path d="M12 7v6"/><path d="M8 9l4-2 4 2"/><path d="M9 20l3-7 3 7"/><path d="M4 22h16"/></svg></span>
+              <strong>Jump Up</strong><p>Impulse-dominated movement; acts as the minority class.</p>
+            </div>
+            <div class="activity-card">
+              <span class="activity-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="5.5" cy="17.5" r="3.2"/><circle cx="18.5" cy="17.5" r="3.2"/><path d="M5.5 17.5l4-6h5"/><path d="M18.5 17.5L14 8.5"/><circle cx="15.5" cy="4.6" r="1.6"/></svg></span>
+              <strong>Cycling</strong><p>Smooth, predominantly rotational lower-limb motion constrained by the pedal cycle.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="design-block" data-block="preparation">
+        <div class="design-head" role="button" tabindex="0" aria-expanded="false">
+          <span class="design-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></span>
+          <div class="design-head-text"><h4>Signal Preparation</h4><p>Windowing, stride, and fold-specific standardisation</p></div>
+          <svg class="design-chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="design-body">
+          <div class="design-grid three">
+            <div class="spec-card"><h5>Segmentation</h5>
+              <dl class="spec-list"><dt>Window length</dt><dd>160 samples (3.2 s)</dd><dt>Stride</dt><dd>40 samples (0.8 s)</dd><dt>Overlap</dt><dd>75%</dd></dl>
+            </div>
+            <div class="spec-card"><h5>Standardisation</h5>
+              <dl class="spec-list"><dt>Method</dt><dd>Per-channel z-score</dd><dt>Fit on</dt><dd>Training data only</dd><dt>Applied to</dt><dd>Held-out subject + synthetic samples</dd></dl>
+            </div>
+            <div class="spec-card"><h5>Sensor Configuration</h5>
+              <dl class="spec-list"><dt>Sampling rate</dt><dd>50 Hz</dd><dt>Accelerometer</dt><dd>3 axes (±16g)</dd><dt>Gyroscope</dt><dd>3 axes (±2000°/s)</dd></dl>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="design-block" data-block="integrity">
+        <div class="design-head" role="button" tabindex="0" aria-expanded="false">
+          <span class="design-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>
+          <div class="design-head-text"><h4>Split Integrity</h4><p>Hash-based audit confirming no train–test leakage</p></div>
+          <svg class="design-chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="design-body">
+          <div class="integrity-grid">
+            <div class="integrity-item"><span class="integrity-val">0</span><span class="integrity-label">Identical windows shared between train and test in any fold</span></div>
+            <div class="integrity-item"><span class="integrity-val">Hash-based</span><span class="integrity-label">Duplicate and overlap audit method</span></div>
+            <div class="integrity-item"><span class="integrity-val">12 / 12</span><span class="integrity-label">Folds passed integrity check</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="design-block" data-block="evaluation">
+        <div class="design-head" role="button" tabindex="0" aria-expanded="false">
+          <span class="design-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></span>
+          <div class="design-head-text"><h4>Evaluation Protocol</h4><p>LOSO cross-validation with TSTR and TRTR comparison</p></div>
+          <svg class="design-chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="design-body">
+          <div class="design-grid two">
+            <div class="eval-card">
+              <h5><span class="eval-tag">LOSO</span> Leave-One-Subject-Out</h5>
+              <p>In each run, one participant is held out as the test subject and models are trained on the remaining participants. This ensures no subject identity leaks between training and evaluation.</p>
+            </div>
+            <div class="eval-card">
+              <h5><span class="eval-tag accent">TSTR</span> Train-on-Synthetic, Test-on-Real</h5>
+              <p>Classifiers are trained exclusively on synthetic data generated from the training subjects and evaluated on real data from the held-out subject. Compared against TRTR (train-on-real, test-on-real) as the upper bound.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h3 class="grid-label"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg> Key Metrics at a Glance</h3>
+    <div class="coverage-panel" id="coverage">
+      <div class="cov-toggle" role="tablist">
+        <button class="cov-tab active" data-view="perf" type="button">Performance</button>
+        <button class="cov-tab" data-view="fidelity" type="button">Fidelity &amp; Privacy</button>
+      </div>
+      <div class="cov-list" id="covBody"></div>
+      <p class="cov-hint">Bars are sized relative to the best observed value. Higher is better unless noted.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ METHOD ═══ -->
+<section class="tab-panel" id="panel-method">
+  <div class="container">
+    <p class="eyebrow">Architecture</p>
+    <h2 class="section-title">From wearable signals to a learnable transport path</h2>
+    <p class="section-lead">The architecture is deliberately two-stage: first preserve temporal structure in a compact latent representation, then learn how activity-conditioned noise should move toward that representation.</p>
+
+    <div class="steps-row">
+      <div class="step"><div class="step-num">1</div><h4>Prepare</h4><p>Right-thigh, six-channel IMU; 50 Hz; 160-sample windows; fold-specific training-only standardisation.</p></div>
+      <div class="step"><div class="step-num">2</div><h4>Compress</h4><p>The VAE maps <code>6 × 160</code> signals to <code>48 × 40</code> latent sequences while retaining temporal phase.</p></div>
+      <div class="step"><div class="step-num">3</div><h4>Transport</h4><p>A conditional 1D U-Net predicts the velocity field between data latents and Gaussian noise.</p></div>
+      <div class="step"><div class="step-num">4</div><h4>Generate</h4><p>Ten reverse-time Euler steps produce a data-like latent that the frozen decoder converts to IMU space.</p></div>
+    </div>
+
+    <details class="disclosure-block">
+      <summary>
+        <span class="disclosure-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h6v5H4zM14 6h6v5h-6zM4 15h6v3H4zM14 15h6v3h-6z"/><path d="M10 8.5h4M10 16.5h4M7 11v4M17 11v4"/></svg></span>
+        <span class="disclosure-copy"><strong>Architecture details</strong><small>VAE · flow objective · conditional U-Net · inference</small></span>
+        <span class="disclosure-chevron">⌄</span>
+      </summary>
+      <div class="disclosure-body">
+        <div class="arch-viewer">
+          <div class="arch-tabs" role="tablist" aria-label="Architecture diagrams">
+            <button role="tab" aria-selected="true" class="arch-tab active" data-arch="vae">VAE Architecture</button>
+            <button role="tab" aria-selected="false" class="arch-tab" data-arch="flow">Flow Objective</button>
+            <button role="tab" aria-selected="false" class="arch-tab" data-arch="unet">Conditional U-Net</button>
+            <button role="tab" aria-selected="false" class="arch-tab" data-arch="inference">Inference</button>
+          </div>
+          <div class="arch-panel active" id="arch-vae">
+            <img src="uploads/vae-architecture.webp" alt="LatentVAE1D encoder and decoder architecture" loading="lazy" data-lightbox>
+            <p>A fully convolutional VAE performs four-times temporal compression and reconstructs the complete six-channel window.</p>
+          </div>
+          <div class="arch-panel" id="arch-flow" hidden>
+            <img src="uploads/flow-training.webp" alt="Rectified Flow training objective" loading="lazy" data-lightbox>
+            <p>The velocity model learns the straight-line transport target between data latents and noise at randomly sampled flow times.</p>
+          </div>
+          <div class="arch-panel" id="arch-unet" hidden>
+            <img src="uploads/unet-architecture.webp" alt="Conditional U-Net velocity field architecture" loading="lazy" data-lightbox>
+            <p>Multi-scale temporal convolutions, channel attention, skip connections, flow-time embeddings, and activity embeddings parameterise the latent velocity field.</p>
+          </div>
+          <div class="arch-panel" id="arch-inference" hidden>
+            <img src="uploads/ode-inference.webp" alt="ODE-based Rectified Flow inference" loading="lazy" data-lightbox>
+            <p>At inference, the requested class conditions a ten-step ODE integration from noise to a data-like latent representation.</p>
+          </div>
+        </div>
+      </div>
+    </details>
+  </div>
+</section>
+
+<!-- ═══ GENERATION (Interactive Trajectory Viewer) ═══ -->
+<section class="tab-panel" id="panel-generation">
+  <div class="container">
+    <p class="eyebrow">Interactive Visualisation</p>
+    <h2 class="section-title">From Gaussian noise to a synthetic IMU window</h2>
+    <p class="section-lead">Starting from a Gaussian latent <em>z</em><sub>1</sub>, the model integrates the learned ODE from <em>t</em> = 1 to <em>t</em> = 0 using an explicit Euler solver, conditioned on the activity label. The decoded states show a transition from noise to a coherent multi-channel IMU signal.</p>
+
+    <div class="trajectory-viewer" data-base-path="uploads/trajectories" data-max-subject="17" data-subjects="1,2,3,5,8,9,10,11,12,13,14,16" id="trajectory-viewer">
+      <!-- Toolbar -->
+      <div class="traj-toolbar">
+        <label class="traj-field">
+          <span>Held-out subject</span>
+          <select id="traj-subject" disabled><option>Loading…</option></select>
+        </label>
+        <label class="traj-field">
+          <span>Activity</span>
+          <select id="traj-activity" disabled><option>Loading…</option></select>
+        </label>
+        <label class="traj-field">
+          <span>Playback</span>
+          <select id="traj-speed" disabled>
+            <option value="4">4 fps</option>
+            <option value="8" selected>8 fps</option>
+            <option value="12">12 fps</option>
+            <option value="20">20 fps</option>
+          </select>
+        </label>
+      </div>
+
+      <!-- Status row -->
+      <div class="traj-status">
+        <div>
+          <p class="traj-title" id="traj-title">Waiting for trajectory data</p>
+          <p class="traj-subtitle" id="traj-subtitle">Copy exported subject folders into uploads/trajectories/ to activate the viewer.</p>
+        </div>
+        <a class="traj-download" id="traj-download" aria-disabled="true">Download JSON</a>
+      </div>
+
+      <!-- Canvas -->
+      <div class="traj-canvas-shell">
+        <canvas id="traj-canvas" aria-label="IMU generation trajectory"></canvas>
+        <div class="traj-empty" id="traj-empty">
+          <strong>No trajectory JSON files were found.</strong>
+          <span>Place <code>subject_XX/activity.json</code> files under <code>uploads/trajectories/</code>. Serve via a local HTTP server (e.g. <code>python -m http.server</code>).</span>
+        </div>
+      </div>
+
+      <!-- Timeline -->
+      <div class="traj-timeline">
+        <button class="traj-btn" id="traj-prev" disabled type="button" aria-label="Previous step">−1</button>
+        <button class="traj-btn traj-btn-primary" id="traj-play" disabled type="button">Play</button>
+        <button class="traj-btn" id="traj-next" disabled type="button" aria-label="Next step">+1</button>
+        <input id="traj-range" type="range" min="0" max="0" step="1" value="0" disabled aria-label="Generation step">
+        <div class="traj-readout">
+          <strong id="traj-step">Step —</strong>
+          <span id="traj-time">Flow time —</span>
+        </div>
+      </div>
+
+      <!-- Process rail -->
+      <div class="traj-rail" aria-label="Generation process">
+        <div class="traj-node active" data-stage="noise"><span>1</span><strong>Gaussian noise</strong><small>Initial latent</small></div>
+        <div class="traj-connector"></div>
+        <div class="traj-node" data-stage="flow"><span>2</span><strong>Velocity updates</strong><small>Conditional U-Net</small></div>
+        <div class="traj-connector"></div>
+        <div class="traj-node" data-stage="latent"><span>3</span><strong>Data-like latent</strong><small>End of ODE path</small></div>
+        <div class="traj-connector"></div>
+        <div class="traj-node" data-stage="decode"><span>4</span><strong>VAE decode</strong><small>Physical units</small></div>
+        <div class="traj-connector"></div>
+        <div class="traj-node" data-stage="signal"><span>5</span><strong>IMU window</strong><small>3.2 seconds</small></div>
+      </div>
+
+      <!-- Caption -->
+      <div class="traj-caption">
+        <span>Sampling rate <strong id="traj-cap-rate">—</strong></span>
+        <span>Window <strong id="traj-cap-window">—</strong></span>
+        <span>Stored steps <strong id="traj-cap-steps">—</strong></span>
+      </div>
+    </div>
+
+    <p class="technical-note"><strong>Website visualisation.</strong> The accepted-paper experiments use 10 Euler integration steps. The viewer replays the decoded states recorded in each JSON trajectory export, with the amplitude range fitted to every frame.</p>
+  </div>
+</section>
+
+<!-- ═══ RESULTS ═══ -->
+<section class="tab-panel" id="panel-results">
+  <div class="container">
+    <p class="eyebrow">What the Study Reveals</p>
+    <h2 class="section-title">Five questions that define whether synthetic sensor data are useful</h2>
+    <p class="section-lead">Rather than a single headline number, each finding addresses a practical requirement for deployment, augmentation, or controlled data sharing. Click any figure for a high-resolution view.</p>
+
+    <!-- Aim 1 -->
+    <h3 class="theme-head"><span class="theme-num">01</span> <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg> Downstream HAR Utility</h3>
+    <div class="feature-row">
+      <div class="feature-body">
+        <div class="takeaway-badge"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg> Takeaway 1</div>
+        <h4>Classifiers trained only on synthetic IMU generalise to real unseen participants — with 97.1% of full-real performance retained.</h4>
+        <p>Synthetic-only training achieved macro F1 <strong>0.956 ± 0.081</strong>, compared with <strong>0.985 ± 0.021</strong> when training on all real data, within strict LOSO folds.</p>
+        <div class="metrics"><span><strong>0.985</strong> TRTR</span><span><strong>0.956</strong> TSTR</span><span><strong>97.1%</strong> retention</span></div>
+      </div>
+      <div class="feature-media">
+        <figure class="figure-card"><img src="uploads/tstr-utility.webp" alt="TSTR utility across LOSO folds" loading="lazy" data-lightbox><figcaption>TSTR utility across LOSO folds — Random Forest and 1D CNN.</figcaption></figure>
+      </div>
+    </div>
+
+    <!-- Aim 2 -->
+    <h3 class="theme-head"><span class="theme-num">02</span> <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg> Low-Data Augmentation</h3>
+    <div class="feature-row reverse">
+      <div class="feature-body">
+        <div class="takeaway-badge"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/></svg> Takeaway 2</div>
+        <h4>Synthetic augmentation recovers most of the lost performance from only two real windows per class.</h4>
+        <p>In the accelerometer-only configuration, macro F1 increased from <strong>0.467</strong> to <strong>0.979</strong> — a gain of <strong>+0.512</strong>.</p>
+        <div class="metrics"><span><strong>2</strong> real windows/class</span><span><strong>+0.512</strong> macro F1</span><span><strong>0.979</strong> augmented</span></div>
+      </div>
+      <div class="feature-media">
+        <figure class="figure-card"><img src="uploads/data-efficiency.webp" alt="Data efficiency curve" loading="lazy" data-lightbox><figcaption>Performance as the fraction of real training data changes.</figcaption></figure>
+      </div>
+    </div>
+
+    <!-- Aim 3 -->
+    <h3 class="theme-head"><span class="theme-num">03</span> <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M16 12l-4-4-4 4"/><path d="M12 16V8"/></svg> Flow Model Contribution</h3>
+    <div class="feature-row">
+      <div class="feature-body">
+        <div class="takeaway-badge"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg> Takeaway 3</div>
+        <h4>The VAE alone is not enough — Rectified Flow is doing the generative work.</h4>
+        <p>Replacing Rectified Flow with class-wise Gaussian sampling in the same VAE latent space reduced TSTR macro F1 from <strong>0.956</strong> to <strong>0.443 ± 0.171</strong>.</p>
+        <div class="metrics"><span><strong>0.956</strong> full LRF-IMU</span><span><strong>0.443</strong> VAE-only</span><span><strong>−0.513</strong> gap</span></div>
+      </div>
+      <div class="feature-media">
+        <figure class="figure-card"><img src="uploads/training-curves.webp" alt="Training and validation loss curves" loading="lazy" data-lightbox><figcaption>Representative optimisation trajectories for VAE and Flow stages.</figcaption></figure>
+      </div>
+    </div>
+
+    <!-- Aim 4 -->
+    <h3 class="theme-head"><span class="theme-num">04</span> <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg> Physical &amp; Temporal Fidelity</h3>
+    <div class="feature-row reverse">
+      <div class="feature-body">
+        <div class="takeaway-badge"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Takeaway 4</div>
+        <h4>No synthetic acceleration value exceeded 10 g — structural fidelity matches real-to-real variation.</h4>
+        <p>The synthetic–real correlation difference (<strong>0.158 ± 0.048</strong>) is essentially the same scale as the natural real–real difference between participants (<strong>0.157 ± 0.048</strong>).</p>
+        <div class="metrics"><span><strong>0</strong> values &gt; 10 g</span><span><strong>0.158</strong> syn–real Δr</span><span><strong>0.157</strong> real–real Δr</span></div>
+      </div>
+      <div class="feature-media stacked">
+        <figure class="figure-card"><img src="uploads/physical-plausibility.webp" alt="Physical plausibility comparison" loading="lazy" data-lightbox><figcaption>Physical plausibility and structural fidelity.</figcaption></figure>
+        <figure class="figure-card"><img src="uploads/dba-signals.webp" alt="DTW barycenter averages" loading="lazy" data-lightbox><figcaption>Real and synthetic temporal prototypes (DBA).</figcaption></figure>
+      </div>
+    </div>
+
+    <!-- Aim 5 -->
+    <h3 class="theme-head"><span class="theme-num">05</span> <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg> Memorisation &amp; Privacy</h3>
+    <div class="feature-row">
+      <div class="feature-body">
+        <div class="takeaway-badge"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg> Takeaway 5</div>
+        <h4>Audits found no exact matches or near-duplicates — the model generates novel variations.</h4>
+        <p>Membership-inference performance remained near chance at <strong>0.495 ± 0.020 ROC-AUC</strong>, and an optimisation-based reconstruction attack achieved <strong>0% success</strong> under the evaluated threat model.</p>
+        <div class="metrics"><span><strong>0</strong> duplicates</span><span><strong>0.495</strong> membership AUC</span><span><strong>0%</strong> reconstruction</span></div>
+      </div>
+      <div class="feature-media stacked">
+        <figure class="figure-card"><img src="uploads/umap-overlap.webp" alt="UMAP projections" loading="lazy" data-lightbox><figcaption>Signal-space and latent-space structure.</figcaption></figure>
+        <figure class="figure-card"><img src="uploads/population-coverage.webp" alt="Population coverage" loading="lazy" data-lightbox><figcaption>Population span and nearest-neighbour context.</figcaption></figure>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ IMPLICATIONS ═══ -->
+<section class="tab-panel" id="panel-implications">
+  <div class="container">
+    <p class="eyebrow">Practical Applications</p>
+    <h2 class="section-title">Where LRF-IMU can make a difference</h2>
+    <p class="section-lead">Six evidence-supported use cases for class-conditional synthetic IMU generation, grounded in the study's findings.</p>
+
+    <div class="impl-grid">
+
+      <!-- 01: Low-labelled-data augmentation -->
+      <div class="impl-card">
+        <div class="impl-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/><path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3"/></svg>
+        </div>
+        <h4>Low-labelled-data augmentation</h4>
+        <p>Expand small, activity-labelled wearable datasets into larger training sets when supervised data collection is costly, time-consuming, or burdensome for participants.</p>
+      </div>
+
+      <!-- 02: Rare-event & class mitigation -->
+      <div class="impl-card">
+        <div class="impl-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 22 22 22"/><line x1="12" y1="9" x2="12" y2="15" stroke-width="2.5"/><circle cx="12" cy="18" r="0.8" fill="currentColor" stroke="none"/></svg>
+        </div>
+        <h4>Rare-event &amp; class mitigation</h4>
+        <p>Generate additional windows for under-represented activities such as falls, near-falls, turning, stair transitions, sit-to-stand, or brief high-impact events.</p>
+      </div>
+
+      <!-- 03: Subject-independent HAR -->
+      <div class="impl-card">
+        <div class="impl-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="4"/><path d="M2 21a7 7 0 0 1 14 0"/><circle cx="18" cy="8" r="3" stroke-opacity="0.7"/><path d="M22 21a5 5 0 0 0-6-4.9" stroke-opacity="0.7"/></svg>
+        </div>
+        <h4>Subject-independent HAR</h4>
+        <p>Support classifiers intended to generalise to unseen participants, with synthetic-only TSTR evaluation and low-data augmentation assessed under Leave-One-Subject-Out validation protocols.</p>
+      </div>
+
+      <!-- 04: Pilot & feasibility studies -->
+      <div class="impl-card">
+        <div class="impl-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><line x1="12" y1="1" x2="12" y2="4" stroke-width="2.5"/><line x1="8" y1="1" x2="16" y2="1"/><line x1="12" y1="13" x2="16" y2="9"/></svg>
+        </div>
+        <h4>Pilot &amp; feasibility studies</h4>
+        <p>Train an initial activity-recognition model from short supervised recording sessions, enabling earlier model development and faster design iterations in clinical trials.</p>
+      </div>
+
+      <!-- 05: Accelerometer-only sensing -->
+      <div class="impl-card">
+        <div class="impl-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="5" width="14" height="14" rx="2"/><rect x="9" y="9" width="6" height="6" rx="1"/><line x1="9" y1="5" x2="9" y2="2"/><line x1="15" y1="5" x2="15" y2="2"/><line x1="9" y1="22" x2="9" y2="19"/><line x1="15" y1="22" x2="15" y2="19"/><line x1="5" y1="9" x2="2" y2="9"/><line x1="5" y1="15" x2="2" y2="15"/><line x1="22" y1="9" x2="19" y2="9"/><line x1="22" y1="15" x2="19" y2="15"/></svg>
+        </div>
+        <h4>Accelerometer-only sensing</h4>
+        <p>Apply the separately trained three-channel configuration when power, hardware, cost, or deployment constraints limit sensing entirely to triaxial accelerometry.</p>
+      </div>
+
+      <!-- 06: Signal imputation & gap filling -->
+      <div class="impl-card">
+        <div class="impl-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h4l3-8 4 16 3-8h6"/><rect x="8" y="3" width="8" height="18" rx="2" stroke-width="1.5" stroke-dasharray="2 2" opacity="0.6"/></svg>
+        </div>
+        <h4>Signal imputation &amp; gap filling</h4>
+        <p>Extend the framework to propose plausible replacements for missing or corrupted intervals. This is a future application and requires dedicated boundary evaluation.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══ RESOURCES ═══ -->
+<section class="tab-panel" id="panel-resources">
+  <div class="container">
+    <p class="eyebrow">Open &amp; Reproducible</p>
+    <h2 class="section-title">Get started</h2>
+    <p class="section-lead">The DOI and public research-code repository are live. The curated checkpoint releases are being prepared to accompany the final version of record.</p>
+
+    <div class="resource-grid">
+      <a class="resource-card" href="https://doi.org/10.1088/3049-477X/ae91ef" target="_blank" rel="noopener">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        <h4>Paper</h4><p>10.1088/3049-477X/ae91ef</p>
+      </a>
+      <a class="resource-card" href="https://github.com/aminsens/LRF-IMU" target="_blank" rel="noopener">
+        <svg width="28" height="28" viewBox="0 0 496 512" fill="currentColor"><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8z"/></svg>
+        <h4>Code</h4><p>Inference &amp; reproduction</p>
+      </a>
+      <a class="resource-card" href="#">
+        <svg width="32" height="30" viewBox="0 0 95 88" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path fill="#FFD21E" d="M47.21 76.5a34.75 34.75 0 1 0 0-69.5 34.75 34.75 0 0 0 0 69.5Z"/>
+          <path fill="#FF9D0B" d="M81.96 41.75a34.75 34.75 0 1 0-69.5 0 34.75 34.75 0 0 0 69.5 0Zm-73.5 0a38.75 38.75 0 1 1 77.5 0 38.75 38.75 0 0 1-77.5 0Z"/>
+          <path fill="#3A3B45" d="M58.5 32.3c1.28.44 1.78 3.06 3.07 2.38a5 5 0 1 0-6.76-2.07c.61 1.15 2.55-.72 3.7-.32ZM34.95 32.3c-1.28.44-1.79 3.06-3.07 2.38a5 5 0 1 1 6.76-2.07c-.61 1.15-2.56-.72-3.7-.32Z"/>
+          <path fill="#FF323D" d="M46.96 56.29c9.83 0 13-8.76 13-13.26 0-2.34-1.57-1.6-4.09-.36-2.33 1.15-5.46 2.74-8.9 2.74-7.19 0-13-6.88-13-2.38s3.16 13.26 13 13.26Z"/>
+          <path fill="#3A3B45" fill-rule="evenodd" d="M39.43 54a8.7 8.7 0 0 1 5.3-4.49c.4-.12.81.57 1.24 1.28.4.68.82 1.37 1.24 1.37.45 0 .9-.68 1.33-1.35.45-.7.89-1.38 1.32-1.25a8.61 8.61 0 0 1 5 4.17c3.73-2.94 5.1-7.74 5.1-10.7 0-2.34-1.57-1.6-4.09-.36l-.14.07c-2.31 1.15-5.39 2.67-8.77 2.67s-6.45-1.52-8.77-2.67c-2.6-1.29-4.23-2.1-4.23.29 0 3.05 1.46 8.06 5.47 10.97Z" clip-rule="evenodd"/>
+          <path fill="#FF9D0B" d="M70.71 37a3.25 3.25 0 1 0 0-6.5 3.25 3.25 0 0 0 0 6.5ZM24.21 37a3.25 3.25 0 1 0 0-6.5 3.25 3.25 0 0 0 0 6.5ZM17.52 48c-1.62 0-3.06.66-4.07 1.87a5.97 5.97 0 0 0-1.33 3.76 7.1 7.1 0 0 0-1.94-.3c-1.55 0-2.95.59-3.94 1.66a5.8 5.8 0 0 0-.8 7 5.3 5.3 0 0 0-1.79 2.82c-.24.9-.48 2.8.8 4.74a5.22 5.22 0 0 0-.37 5.02c1.02 2.32 3.57 4.14 8.52 6.1 3.07 1.22 5.89 2 5.91 2.01a44.33 44.33 0 0 0 10.93 1.6c5.86 0 10.05-1.8 12.46-5.34 3.88-5.69 3.33-10.9-1.7-15.92-2.77-2.78-4.62-6.87-5-7.77-.78-2.66-2.84-5.62-6.25-5.62a5.7 5.7 0 0 0-4.6 2.46c-1-1.26-1.98-2.25-2.86-2.82A7.4 7.4 0 0 0 17.52 48Zm0 4c.51 0 1.14.22 1.82.65 2.14 1.36 6.25 8.43 7.76 11.18.5.92 1.37 1.31 2.14 1.31 1.55 0 2.75-1.53.15-3.48-3.92-2.93-2.55-7.72-.68-8.01.08-.02.17-.02.24-.02 1.7 0 2.45 2.93 2.45 2.93s2.2 5.52 5.98 9.3c3.77 3.77 3.97 6.8 1.22 10.83-1.88 2.75-5.47 3.58-9.16 3.58-3.81 0-7.73-.9-9.92-1.46-.11-.03-13.45-3.8-11.76-7 .28-.54.75-.76 1.34-.76 2.38 0 6.7 3.54 8.57 3.54.41 0 .7-.17.83-.6.79-2.85-12.06-4.05-10.98-8.17.2-.73.71-1.02 1.44-1.02 3.14 0 10.2 5.53 11.68 5.53.11 0 .2-.03.24-.1.74-1.2.33-2.04-4.9-5.2-5.21-3.16-8.88-5.06-6.8-7.33.24-.26.58-.38 1-.38 3.17 0 10.66 6.82 10.66 6.82s2.02 2.1 3.25 2.1c.28 0 .52-.1.68-.38.86-1.46-8.06-8.22-8.56-11.01-.34-1.9.24-2.85 1.31-2.85Z"/>
+          <path fill="#FFD21E" d="M38.6 76.69c2.75-4.04 2.55-7.07-1.22-10.84-3.78-3.77-5.98-9.3-5.98-9.3s-.82-3.2-2.69-2.9c-1.87.3-3.24 5.08.68 8.01 3.91 2.93-.78 4.92-2.29 2.17-1.5-2.75-5.62-9.82-7.76-11.18-2.13-1.35-3.63-.6-3.13 2.2.5 2.79 9.43 9.55 8.56 11-.87 1.47-3.93-1.71-3.93-1.71s-9.57-8.71-11.66-6.44c-2.08 2.27 1.59 4.17 6.8 7.33 5.23 3.16 5.64 4 4.9 5.2-.75 1.2-12.28-8.53-13.36-4.4-1.08 4.11 11.77 5.3 10.98 8.15-.8 2.85-9.06-5.38-10.74-2.18-1.7 3.21 11.65 6.98 11.76 7.01 4.3 1.12 15.25 3.49 19.08-2.12Z"/>
+          <path fill="#FF9D0B" d="M77.4 48c1.62 0 3.07.66 4.07 1.87a5.97 5.97 0 0 1 1.33 3.76 7.1 7.1 0 0 1 1.95-.3c1.55 0 2.95.59 3.94 1.66a5.8 5.8 0 0 1 .8 7 5.3 5.3 0 0 1 1.78 2.82c.24.9.48 2.8-.8 4.74a5.22 5.22 0 0 1 .37 5.02c-1.02 2.32-3.57 4.14-8.51 6.1-3.08 1.22-5.9 2-5.92 2.01a44.33 44.33 0 0 1-10.93 1.6c-5.86 0-10.05-1.8-12.46-5.34-3.88-5.69-3.33-10.9 1.7-15.92 2.78-2.78 4.63-6.87 5.01-7.77.78-2.66 2.83-5.62 6.24-5.62a5.7 5.7 0 0 1 4.6 2.46c1-1.26 1.98-2.25 2.87-2.82A7.4 7.4 0 0 1 77.4 48Zm0 4c-.51 0-1.13.22-1.82.65-2.13 1.36-6.25 8.43-7.76 11.18a2.43 2.43 0 0 1-2.14 1.31c-1.54 0-2.75-1.53-.14-3.48 3.91-2.93 2.54-7.72.67-8.01a1.54 1.54 0 0 0-.24-.02c-1.7 0-2.45 2.93-2.45 2.93s-2.2 5.52-5.97 9.3c-3.78 3.77-3.98 6.8-1.22 10.83 1.87 2.75 5.47 3.58 9.15 3.58 3.82 0 7.73-.9 9.93-1.46.1-.03 13.45-3.8 11.76-7-.29-.54-.75-.76-1.34-.76-2.38 0-6.71 3.54-8.57 3.54-.42 0-.71-.17-.83-.6-.8-2.85 12.05-4.05 10.97-8.17-.19-.73-.7-1.02-1.44-1.02-3.14 0-10.2 5.53-11.68 5.53-.1 0-.19-.03-.23-.1-.74-1.2-.34-2.04 4.88-5.2 5.23-3.16 8.9-5.06 6.8-7.33-.23-.26-.57-.38-.98-.38-3.18 0-10.67 6.82-10.67 6.82s-2.02 2.1-3.24 2.1a.74.74 0 0 1-.68-.38c-.87-1.46 8.05-8.22 8.55-11.01.34-1.9-.24-2.85-1.31-2.85Z"/>
+          <path fill="#FFD21E" d="M56.33 76.69c-2.75-4.04-2.56-7.07 1.22-10.84 3.77-3.77 5.97-9.3 5.97-9.3s.82-3.2 2.7-2.9c1.86.3 3.23 5.08-.68 8.01-3.92 2.93.78 4.92 2.28 2.17 1.51-2.75 5.63-9.82 7.76-11.18 2.13-1.35 3.64-.6 3.13 2.2-.5 2.79-9.42 9.55-8.55 11 .86 1.47 3.92-1.71 3.92-1.71s9.58-8.71 11.66-6.44c2.08 2.27-1.58 4.17-6.8 7.33-5.23 3.16-5.63 4-4.9 5.2.75 1.2 12.28-8.53 13.36-4.4 1.08 4.11-11.76 5.3-10.97 8.15.8 2.85 9.05-5.38 10.74-2.18 1.69 3.21-11.65 6.98-11.76 7.01-4.31 1.12-15.26 3.49-19.08-2.12Z"/>
+        </svg>
+        <h4>Models</h4><p>Fold-trained checkpoints</p>
+      </a>
+      <a class="resource-card" href="#">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+        <h4>Synthetic Examples</h4><p>NPZ + CSV samples</p>
+      </a>
+    </div>
+
+    <h3 class="grid-label"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg> Citation</h3>
+    <div class="citation-grid">
+      <div class="citation-info">
+        <p class="plain-cite">Rezaei et al 2026 <em>Machine Learning: Health</em><br><a href="https://doi.org/10.1088/3049-477X/ae91ef" target="_blank" rel="noopener">10.1088/3049-477X/ae91ef</a></p>
+      </div>
+      <div class="bibtex-block">
+        <div class="bibtex-head"><span>BibTeX</span><button id="copy-bibtex">Copy</button></div>
+        <pre id="bibtex-value">@article{rezaei2026lrfimu,
+  title   = {A latent rectified flow approach to generate
+             synthetic wearable data -- a LABDA solution},
+  author  = {Rezaei, Amin and Kjaergaard, Morten and
+             Schipperijn, Jasper},
+  journal = {Machine Learning: Health},
+  year    = {2026},
+  doi     = {10.1088/3049-477X/ae91ef},
+  publisher = {IOP Publishing}
+}</pre>
+      </div>
+    </div>
+
+    <!-- Acknowledgements -->
+    <h3 class="grid-label"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg> Acknowledgements</h3>
+    <div class="ack-block">
+      <p>This work was supported by the <a href="https://labda-project.eu/" target="_blank" rel="noopener">LABDA</a> (Learning network for Advanced Behavioural Data Analysis) MSCA Doctoral Network, under the Horizon Europe research and innovation programme, grant agreement No. 101072993.</p>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ═══════════════ OPEN ACCESS BUTTON ═══════════════ -->
+<a class="oa-button" href="https://iopscience.iop.org/article/10.1088/3049-477X/ae91ef/pdf" target="_blank" rel="noopener noreferrer" aria-label="Open Access PDF">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0"/></svg>
+</a>
+
+<!-- ═══════════════ FOOTER ═══════════════ -->
+<footer class="site-footer">
+  <div class="footer-inner">
+    <span>LRF-IMU · Latent Rectified Flow for Synthetic Wearable IMU Data</span>
+    <span class="footer-sep">·</span>
+    <span>LABDA MSCA Doctoral Network · Horizon Europe No. 101072993</span>
+    <span class="footer-sep">·</span>
+    <a href="./llms.txt" class="footer-llms">for LLMs <span aria-hidden="true">♥</span></a>
+  </div>
+</footer>
+
+<!-- ═══════════════ LIGHTBOX ═══════════════ -->
+<div class="lightbox-overlay" id="lightbox" role="dialog" aria-label="Expanded figure">
+  <button class="lightbox-close" aria-label="Close">×</button>
+  <img src="" alt="">
+  <p class="lightbox-caption"></p>
+</div>
+
+<script src="index.js"></script>
+</body>
+</html>
